@@ -6,7 +6,7 @@ from config import SECRET_KEY
 from db.models import User
 
 
-access_security = JwtAccessBearer(secret_key=SECRET_KEY, auto_error=True)
+access_security = JwtAccessBearer(secret_key=SECRET_KEY, access_expires_delta=timedelta(days=7), auto_error=True)
 
 async def create_jwt_token(user: User):
     subject = {

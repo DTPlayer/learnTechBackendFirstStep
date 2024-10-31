@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, UUID4
+from fastapi import UploadFile
 from db.models import *
 
 from typing import Optional, List
@@ -18,7 +19,6 @@ class EditCardRequest(BaseModel):
     job_title: Optional[str] = None
     salary: Optional[int] = None
     status: Optional[str] = None
-    files: Optional[List[bytes]] = None
 
 
 class CreateBoardRequest(BaseModel):
@@ -31,7 +31,8 @@ class CreateCardRequest(BaseModel):
     middle_name_candidate: str
     job_title: str
     salary: int
-    files: Optional[List[bytes]] = None
+    board_id: UUID4
+    status: str = 'interview'
 
 
 # response models
@@ -52,9 +53,14 @@ class AuthResponse(BaseResponse):
     user: BaseUser
 
 
+class BaseCard(BaseModel):
+    card: pydantic_model_creator(Card)
+    files: Optional[List[pydantic_model_creator(CardFiles)]] = None
+
+
 class BoardResponse(BaseResponse):
     board: pydantic_model_creator(Board)
-    cards: List[pydantic_model_creator(Card)]
+    cards: List[BaseCard]
 
 
 class BoardsResponse(BaseResponse):
@@ -70,4 +76,6 @@ __all__ = (
     "BoardResponse",
     "BoardsResponse",
     "CreateBoardRequest",
+    "CreateCardRequest",
+    "BaseCard"
 )
