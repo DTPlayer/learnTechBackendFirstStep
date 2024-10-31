@@ -7,3 +7,5 @@ TORTOISE_CONFIG = {
         }
     },
 }
+
+SECRET_KEY = 'ef460dfca73e40a51dc42c4ca36963e'
