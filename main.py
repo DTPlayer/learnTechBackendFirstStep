@@ -8,6 +8,8 @@ from config import TORTOISE_CONFIG
 
 from contextlib import asynccontextmanager
 
+import uvicorn
+
 
 @asynccontextmanager
 async def lifecycle(app: FastAPI):
@@ -27,3 +29,7 @@ app.include_router(router, prefix='/api')
 
 
 app.mount('/static', StaticFiles(directory='static'), name='static')
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, port=8333)
