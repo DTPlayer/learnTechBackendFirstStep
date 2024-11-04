@@ -304,6 +304,52 @@ async def delete_card(card_id: UUID4, response: Response, security: JwtAuthoriza
         cards=models_cards,
     )
 
+
+@router.post('/board/{board_id}/delete')
+async def delete_board(board_id: UUID4, response: Response, security: JwtAuthorizationCredentials = Security(access_security)) -> BaseResponse:
+    user = await User.get_or_none(id=security['user_id'])
+
+    if not user:
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return BaseResponse(success=False,
+                            message='Требуется авторизация')
+
+    board = await Board.get_or_none(id=board_id)
+
+    if not board:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return BaseResponse(success=False,
+                            message='Доска не найдена')
+
+    await board.delete()
+
+    return BaseResponse(success=True)
+
+
+@router.post('/board/{board_id}/edit')
+async def edit_board(board_id: UUID4, board_data: CreateBoardRequest, response: Response, security: JwtAuthorizationCredentials = Security(access_security)) -> Union[BoardResponse, BaseResponse]:
+    user = await User.get_or_none(id=security['user_id'])
+
+    if not user:
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return BaseResponse(success=False,
+                            message='Требуется авторизация')
+
+    board = await Board.get_or_none(id=board_id)
+
+    if not board:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return BaseResponse(success=False,
+                            message='Доска не найдена')
+
+    board.name = board_data.name
+    await board.save(update_fields=('name',))
+
+    return BoardResponse(
+        board=board,
+        cards=list(),
+    )
+
 __all__ = (
     'router',
 )
