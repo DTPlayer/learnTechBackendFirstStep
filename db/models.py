@@ -29,6 +29,7 @@ class Card(Model):
     last_name_candidate = fields.CharField(max_length=255)
     middle_name_candidate = fields.CharField(max_length=255)
     hr = fields.ForeignKeyField("models.User", related_name="cards")
+    date_of_birth_candidate = fields.DatetimeField()
     job_title = fields.CharField(max_length=255)
     salary = fields.IntField()
     created_at = fields.DatetimeField(auto_now_add=True)
@@ -40,7 +41,6 @@ class CardFiles(Model):
     card = fields.ForeignKeyField("models.Card", related_name="fields")
     file_path = fields.CharField(max_length=255)
     file_metadata = fields.JSONField()
-
 
 __all__ = (
     "User",
