@@ -1,8 +1,9 @@
 from pydantic import BaseModel, UUID4
-from fastapi import UploadFile
 from db.models import *
 
 from typing import Optional, List
+
+from datetime import datetime
 
 from tortoise.contrib.pydantic import pydantic_model_creator
 
@@ -19,6 +20,7 @@ class EditCardRequest(BaseModel):
     job_title: Optional[str] = None
     salary: Optional[int] = None
     status: Optional[str] = None
+    date_of_birth_candidate: Optional[datetime] = None
 
 
 class CreateBoardRequest(BaseModel):
@@ -33,6 +35,7 @@ class CreateCardRequest(BaseModel):
     salary: int
     board_id: UUID4
     status: str = 'interview'
+    date_of_birth_candidate: datetime
 
 
 # response models
@@ -53,9 +56,13 @@ class AuthResponse(BaseResponse):
     user: BaseUser
 
 
-class BaseCard(BaseModel):
+class CardModel(BaseModel):
     card: pydantic_model_creator(Card)
     files: Optional[List[pydantic_model_creator(CardFiles)]] = None
+
+
+class BaseCard(BaseModel):
+    data: CardModel
 
 
 class BoardResponse(BaseResponse):
@@ -77,5 +84,6 @@ __all__ = (
     "BoardsResponse",
     "CreateBoardRequest",
     "CreateCardRequest",
-    "BaseCard"
+    "BaseCard",
+    "CardModel",
 )

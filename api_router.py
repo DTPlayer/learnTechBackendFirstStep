@@ -1,7 +1,7 @@
 from typing import Union
 from pydantic import UUID4
 
-from fastapi import APIRouter, Security, Response, status, UploadFile, File
+from fastapi import APIRouter, Security, Response, status, UploadFile, Query
 
 from fastapi_jwt import JwtAuthorizationCredentials
 
@@ -88,8 +88,10 @@ async def create_board(board_data: CreateBoardRequest, response: Response, secur
     for card in cards:
         card_files = await CardFiles.filter(card=card)
         models_cards.append(BaseCard(
-            card=card,
-            files=card_files
+            data=CardModel(
+                card=card,
+                files=card_files
+            ),
         ))
 
     return BoardResponse(
@@ -121,8 +123,10 @@ async def get_board(board_id: UUID4, response: Response, security: JwtAuthorizat
     for card in cards:
         card_files = await CardFiles.filter(card=card)
         models_cards.append(BaseCard(
-            card=card,
-            files=card_files
+            data=CardModel(
+                card=card,
+                files=card_files
+            ),
         ))
 
     return BoardResponse(
@@ -155,7 +159,8 @@ async def create_card(card_data: CreateCardRequest, response: Response, security
         job_title=card_data.job_title,
         salary=card_data.salary,
         status=card_data.status,
-        hr=user
+        hr=user,
+        date_of_birth_candidate=card_data.date_of_birth_candidate
     )
 
     cards = await Card.filter(board=board)
@@ -164,8 +169,10 @@ async def create_card(card_data: CreateCardRequest, response: Response, security
     for card in cards:
         card_files = await CardFiles.filter(card=card)
         models_cards.append(BaseCard(
-            card=card,
-            files=card_files
+            data=CardModel(
+                card=card,
+                files=card_files
+            ),
         ))
 
     return BoardResponse(
@@ -175,7 +182,7 @@ async def create_card(card_data: CreateCardRequest, response: Response, security
 
 
 @router.post('/card/{card_id}/upload')
-async def upload_file(card_id: UUID4, response: Response, file: UploadFile, security: JwtAuthorizationCredentials = Security(access_security)) -> Union[BoardResponse, BaseResponse]:
+async def upload_file(card_id: UUID4, response: Response, file: UploadFile, status_file: str = Query(...), security: JwtAuthorizationCredentials = Security(access_security)) -> Union[BoardResponse, BaseResponse]:
     user = await User.get_or_none(id=security['user_id'])
 
     if not user:
@@ -190,10 +197,10 @@ async def upload_file(card_id: UUID4, response: Response, file: UploadFile, secu
         return BaseResponse(success=False,
                             message='Карточка не найдена')
 
-    if not file.filename.endswith('.docx') and not file.filename.endswith('.xlsx') and not file.filename.endswith('.pdf'):
+    if file.content_type.split('/')[1] not in ['docx', 'xlsx', 'pdf', 'doc', 'xls']:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return BaseResponse(success=False,
-                            message='Файл должен быть в формате docx, xlsx, pdf')
+                            message='Файл должен быть в формате docx, doc, xlsx, xls, pdf')
 
     if not os.path.exists('static'):
         os.mkdir('static')
@@ -207,6 +214,7 @@ async def upload_file(card_id: UUID4, response: Response, file: UploadFile, secu
         file_metadata={
             'name': file.filename,
             'type': file.content_type,
+            'status': status_file
         }
     )
 
@@ -217,8 +225,10 @@ async def upload_file(card_id: UUID4, response: Response, file: UploadFile, secu
     for card in cards:
         card_files = await CardFiles.filter(card=card)
         models_cards.append(BaseCard(
-            card=card,
-            files=card_files
+            data=CardModel(
+                card=card,
+                files=card_files
+            ),
         ))
 
     return BoardResponse(
@@ -260,8 +270,10 @@ async def edit_card(card_id: UUID4, response: Response, card_data: EditCardReque
     for card in cards:
         card_files = await CardFiles.filter(card=card)
         models_cards.append(BaseCard(
-            card=card,
-            files=card_files
+            data=CardModel(
+                card=card,
+                files=card_files
+            ),
         ))
 
     return BoardResponse(
@@ -295,8 +307,10 @@ async def delete_card(card_id: UUID4, response: Response, security: JwtAuthoriza
     for card in cards:
         card_files = await CardFiles.filter(card=card)
         models_cards.append(BaseCard(
-            card=card,
-            files=card_files
+            data=CardModel(
+                card=card,
+                files=card_files
+            ),
         ))
 
     return BoardResponse(

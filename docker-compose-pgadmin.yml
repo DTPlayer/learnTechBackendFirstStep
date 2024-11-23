@@ -1,0 +1,9 @@
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-cloud
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mail.ru
+      PGADMIN_DEFAULT_PASSWORD: Dpfm555oa31!
+    ports:
+      - "5050:80"
